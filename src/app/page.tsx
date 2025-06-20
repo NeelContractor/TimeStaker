@@ -1,5 +1,5 @@
-import { DashboardFeature } from '@/components/dashboard/dashboard-feature'
+import TimeStaker from '@/components/MainPageComponents/TimeStaker'
 
 export default function Home() {
-  return <DashboardFeature />
+  return <TimeStaker />
 }
