@@ -5,16 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useTimeStakerProgram } from '../counter/timestaker-data-access';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-interface CreateGoalFormProps {
-  onSubmit: (goalData: {
-    goal: string;
-    githubLink: string;
-    stakedAmount: number;
-    endDate: string;
-  }) => void;
-}
-
-export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
+export const CreateGoalForm= () => {
   const [formData, setFormData] = useState({
     goal: '',
     githubLink: '',
@@ -102,14 +93,6 @@ export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
         stakeAmount: stakeAmountLamports,
         deadline: deadlineTimestamp,
         creatorPubkey: publicKey
-      });
-
-      // Call the onSubmit prop to notify parent component of successful creation
-      onSubmit({
-        goal: formData.goal,
-        githubLink: formData.githubLink,
-        stakedAmount: parseFloat(formData.stakedAmount),
-        endDate: formData.endDate
       });
 
       // Reset form after successful submission

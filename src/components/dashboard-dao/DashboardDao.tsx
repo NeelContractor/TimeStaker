@@ -1,10 +1,9 @@
 "use client"
-import { CheckCircle2, RotateCcw, TrendingUp, Users, XCircle } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { WalletButton } from "../solana/solana-provider";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useTimeStakerProgram } from "../counter/timestaker-data-access";
-import { toast } from "sonner";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 // TypeScript types for the proof type enum
@@ -22,28 +21,11 @@ interface ProofTypeDisplayProps {
   proofType?: ProofTypeEnum | null;
 }
 
-interface VoteState {
-    id: number,
-    userId: string,
-    goal: string,
-    proof: string,
-    resolved: boolean,
-    yes: number;
-    no: number;
-    userVoted: 'yes' | 'no' | null;
-    totalVotes: number;
-}
-
 export default function DashboardDao() {
     const { publicKey } = useWallet();
     const { registerJudge, judgeAccounts, goalAccounts, voteButton, withdrawJudgeStake } = useTimeStakerProgram();
     const [showButton, setShowButton] = useState(false);
-    
-
-    
-    //   const yesPercentage = votes.totalVotes > 0 ? (votes.yes / votes.totalVotes) * 100 : 0;
-    //   const noPercentage = votes.totalVotes > 0 ? (votes.no / votes.totalVotes) * 100 : 0;
-
+ 
     useEffect(() => {
       if (judgeAccounts.isLoading) {
           return; // Wait for loading to complete
@@ -57,12 +39,11 @@ export default function DashboardDao() {
       } else {
           setShowButton(true);
       }
-  }, [judgeAccounts.data, judgeAccounts.isLoading]) // Add dependencies
+  }, [judgeAccounts.data, judgeAccounts.isLoading, publicKey]) // Add dependencies
 
     const handleRegister = async() => {
       if (publicKey) {
-        const tx = await registerJudge.mutateAsync({ judgePubkey: publicKey })
-        // toast(tx);
+        await registerJudge.mutateAsync({ judgePubkey: publicKey })
       }
     }
 
@@ -138,7 +119,7 @@ export default function DashboardDao() {
             </h1>
             
             <p className="text-xl text-white/70 max-w-2xl mx-auto">
-              Cast your vote and see real-time results from the community. Your voice matters in shaping our product's future.
+              Cast your vote and see real-time results from the community. Your voice matters in shaping our product&#39;s future.
             </p>
         
             <div className="flex justify-center bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm py-10 my-10">

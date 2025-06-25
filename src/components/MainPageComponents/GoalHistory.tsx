@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Clock, CheckCircle, XCircle, AlertTriangle, ExternalLink, Calendar, Coins } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, AlertTriangle, Calendar } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTimeStakerProgram } from '../counter/timestaker-data-access';
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';

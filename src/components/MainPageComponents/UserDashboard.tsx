@@ -4,78 +4,9 @@ import { CreateGoalForm } from './CreateGoalForm';
 import { GoalHistory } from './GoalHistory';
 import { User, Target, History, TrendingUp, Coins } from 'lucide-react';
 
-interface Goal {
-  id: string;
-  goal: string;
-  githubLink: string;
-  stakedAmount: number;
-  createdAt: Date;
-  endTime: Date;
-  status: 'active' | 'completed' | 'slashed' | 'under_review';
-  proofSubmittedAt?: Date;
-  completedAt?: Date;
-}
-
 export const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'create' | 'history'>('create');
   
-  // Mock data - replace with real data from your backend
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      goal: 'Build a full-stack e-commerce application with React, Node.js, and PostgreSQL. Include user authentication, payment processing, inventory management, and admin dashboard.',
-      githubLink: 'https://github.com/user/ecommerce-app',
-      stakedAmount: 50.0,
-      createdAt: new Date('2024-01-01'),
-      endTime: new Date('2024-03-01'),
-      status: 'completed',
-      completedAt: new Date('2024-02-28')
-    },
-    {
-      id: '2',
-      goal: 'Create a mobile-first progressive web app for task management with offline capabilities, push notifications, and real-time collaboration features.',
-      githubLink: 'https://github.com/user/task-manager-pwa',
-      stakedAmount: 25.5,
-      createdAt: new Date('2024-02-15'),
-      endTime: new Date('2024-04-15'),
-      status: 'under_review',
-      proofSubmittedAt: new Date('2024-04-14')
-    },
-    {
-      id: '3',
-      goal: 'Develop a machine learning model for image classification using TensorFlow, deploy it as a REST API, and create a web interface for testing.',
-      githubLink: 'https://github.com/user/ml-image-classifier',
-      stakedAmount: 75.25,
-      createdAt: new Date('2024-03-01'),
-      endTime: new Date('2024-05-01'),
-      status: 'slashed'
-    },
-    {
-      id: '4',
-      goal: 'Build a real-time chat application with WebSocket support, message encryption, file sharing, and group chat functionality.',
-      githubLink: 'https://github.com/user/realtime-chat',
-      stakedAmount: 30.0,
-      createdAt: new Date('2024-04-01'),
-      endTime: new Date('2024-06-01'),
-      status: 'active'
-    }
-  ]);
-
-  const handleCreateGoal = (goalData: {
-    goal: string;
-    githubLink: string;
-    stakedAmount: number;
-    endDate: string;
-  }) => {
-    
-  };
-
-  // Calculate stats
-  const totalStaked = goals.reduce((sum, goal) => sum + goal.stakedAmount, 0);
-  const completedGoals = goals.filter(goal => goal.status === 'completed').length;
-  const activeGoals = goals.filter(goal => goal.status === 'active').length;
-  const successRate = goals.length > 0 ? (completedGoals / goals.length) * 100 : 0;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-lime-900 to-yellow-900">
       {/* Background Elements */}
@@ -104,22 +35,22 @@ export const UserDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 text-center">
               <Coins className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{totalStaked.toFixed(1)}</div>
+              <div className="text-2xl font-bold text-white">{50}</div>
               <div className="text-purple-200 text-sm">Total SOL Staked</div>
             </div>
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 text-center">
               <Target className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{activeGoals}</div>
+              <div className="text-2xl font-bold text-white">{10}</div>
               <div className="text-purple-200 text-sm">Active Goals</div>
             </div>
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 text-center">
               <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{completedGoals}</div>
+              <div className="text-2xl font-bold text-white">{9}</div>
               <div className="text-purple-200 text-sm">Completed Goals</div>
             </div>
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 text-center">
               <History className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">{successRate.toFixed(0)}%</div>
+              <div className="text-2xl font-bold text-white">{90}%</div>
               <div className="text-purple-200 text-sm">Success Rate</div>
             </div>
           </div>
@@ -158,7 +89,7 @@ export const UserDashboard: React.FC = () => {
         {/* Content */}
         <div className="max-w-4xl mx-auto">
           {activeTab === 'create' ? (
-            <CreateGoalForm onSubmit={handleCreateGoal} />
+            <CreateGoalForm />
           ) : (
             <GoalHistory />
           )}

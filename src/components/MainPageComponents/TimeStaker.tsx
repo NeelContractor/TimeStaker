@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { WalletButton } from "../solana/solana-provider";
-import { useTimeStakerProgram } from "../counter/timestaker-data-access";
 
 export const ADMINPUBKEY = new PublicKey('GToMxgF4JcNn8dmNiHt2JrrvLaW6S1zSPoL2W8K2Wkmi');
 
@@ -90,7 +89,7 @@ export default function TimeStaker() {
                 className='w-full bg-gradient-to-br from-purple-500 to-blue-600 hover:from-blue-400 hover:to-purple-500 text-white text-xl font-bold py-4 my-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 '
                 onClick={() => router.push('adminDashboard')}
               >
-                Go to Admin's Dashboard
+                Go to Admin&#39;s Dashboard
               </button>
             </div>
           )}
@@ -170,7 +169,7 @@ export default function TimeStaker() {
               {status === 'under_review' && (
                 <div className="mt-4 p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
                   <p className="text-yellow-200 text-sm text-center">
-                    🔍 Your proof is being reviewed. You'll be notified once the review is complete.
+                    🔍 Your proof is being reviewed. You&#39;ll be notified once the review is complete.
                   </p>
                 </div>
               )}

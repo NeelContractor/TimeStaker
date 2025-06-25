@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function Page() {
     const { publicKey } = useWallet()
     const router = useRouter();
-    const { initialize, globalStateAccount, judgeAccounts, updateJudgeReputation, finalizeGoal, voteRecordAccounts, goalAccounts } = useTimeStakerProgram();
+    const { initialize, globalStateAccount } = useTimeStakerProgram();
 
     const [showInitializeButton, setShowInitializeButton] = useState(false);
     
@@ -57,7 +57,7 @@ export default function Page() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-900 via-blue-900 to-red-900 text-white">
             <div className="py-5">
-                <h1 className="text-6xl font-bold text-center">Admin's Dashboard</h1>
+                <h1 className="text-6xl font-bold text-center">Admin&#39;s Dashboard</h1>
             </div>
             
             {/* Show loading state */}

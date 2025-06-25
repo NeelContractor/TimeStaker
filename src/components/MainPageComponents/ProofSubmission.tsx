@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import { Upload, Image, Link2, X, CheckCircle, Send } from 'lucide-react';
+import { Upload, Image, Link2, X, Send } from 'lucide-react';
 
 interface ProofSubmissionProps {
   isOpen: boolean;
