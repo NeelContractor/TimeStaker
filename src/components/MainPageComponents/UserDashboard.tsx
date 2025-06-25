@@ -67,18 +67,7 @@ export const UserDashboard: React.FC = () => {
     stakedAmount: number;
     endDate: string;
   }) => {
-    const newGoal: Goal = {
-      id: Date.now().toString(),
-      goal: goalData.goal,
-      githubLink: goalData.githubLink,
-      stakedAmount: goalData.stakedAmount,
-      createdAt: new Date(),
-      endTime: new Date(goalData.endDate),
-      status: 'active'
-    };
-
-    setGoals(prev => [newGoal, ...prev]);
-    setActiveTab('history');
+    
   };
 
   // Calculate stats
@@ -88,7 +77,7 @@ export const UserDashboard: React.FC = () => {
   const successRate = goals.length > 0 ? (completedGoals / goals.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-lime-900 to-yellow-900">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -171,7 +160,7 @@ export const UserDashboard: React.FC = () => {
           {activeTab === 'create' ? (
             <CreateGoalForm onSubmit={handleCreateGoal} />
           ) : (
-            <GoalHistory goals={goals} />
+            <GoalHistory />
           )}
         </div>
       </div>

@@ -1,6 +1,9 @@
 "use client"
 import React, { useState } from 'react';
 import { Target, Github, Calendar, Coins, Plus, AlertCircle } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useTimeStakerProgram } from '../counter/timestaker-data-access';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 interface CreateGoalFormProps {
   onSubmit: (goalData: {
@@ -20,6 +23,9 @@ export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { publicKey } = useWallet()
+  const { createGoals, globalStateAccount } = useTimeStakerProgram()
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -69,26 +75,56 @@ export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
     
     if (!validateForm()) return;
 
+    if (!publicKey) {
+      setErrors(prev => ({ ...prev, general: 'Please connect your wallet first' }));
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    onSubmit({
-      goal: formData.goal,
-      githubLink: formData.githubLink,
-      stakedAmount: parseFloat(formData.stakedAmount),
-      endDate: formData.endDate
-    });
+    try {
+      // Fix: Extract totalGoals correctly and handle the array properly
+      let goalId;
+      if (globalStateAccount.data && globalStateAccount.data.length > 0) {
+        // Get the totalGoals from the first account's data
+        goalId = globalStateAccount.data[0].account.totalGoals.toNumber() + 1;
+      } else {
+        goalId = 1;
+      }
 
-    // Reset form
-    setFormData({
-      goal: '',
-      githubLink: '',
-      stakedAmount: '',
-      endDate: ''
-    });
-    setIsSubmitting(false);
+      const stakeAmountLamports = Math.floor(parseFloat(formData.stakedAmount) * LAMPORTS_PER_SOL);
+      const deadlineTimestamp = Math.floor(new Date(formData.endDate).getTime() / 1000);
+      const fullDescription = `Goal ${formData.goal}\nGithub Repository: ${formData.githubLink}`;
+
+      await createGoals.mutateAsync({
+        goal_id: goalId,
+        description: fullDescription,
+        stakeAmount: stakeAmountLamports,
+        deadline: deadlineTimestamp,
+        creatorPubkey: publicKey
+      });
+
+      // Call the onSubmit prop to notify parent component of successful creation
+      onSubmit({
+        goal: formData.goal,
+        githubLink: formData.githubLink,
+        stakedAmount: parseFloat(formData.stakedAmount),
+        endDate: formData.endDate
+      });
+
+      // Reset form after successful submission
+      setFormData({
+        goal: '',
+        githubLink: '',
+        stakedAmount: '',
+        endDate: ''
+      });
+      setErrors({});
+    } catch (error) {
+      console.error('Error creating goal:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {

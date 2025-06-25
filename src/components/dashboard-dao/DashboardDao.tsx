@@ -1,8 +1,26 @@
 "use client"
 import { CheckCircle2, RotateCcw, TrendingUp, Users, XCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WalletButton } from "../solana/solana-provider";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useTimeStakerProgram } from "../counter/timestaker-data-access";
+import { toast } from "sonner";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
+// TypeScript types for the proof type enum
+type ProofTypeVariant = 'image' | 'document' | 'link' | 'text' | 'video';
+
+type ProofTypeEnum = 
+  | { image: Record<string, never> }
+  | { document: Record<string, never> }
+  | { link: Record<string, never> }
+  | { text: Record<string, never> }
+  | { video: Record<string, never> };
+
+// Props interface for the component
+interface ProofTypeDisplayProps {
+  proofType?: ProofTypeEnum | null;
+}
 
 interface VoteState {
     id: number,
@@ -18,81 +36,78 @@ interface VoteState {
 
 export default function DashboardDao() {
     const { publicKey } = useWallet();
-    const [votes, setVotes] = useState<VoteState[]>([{
-            id: 1,
-            userId: "NeeF4wurno255WqxWwgTsXK6EWkwNkZiRkxHZE919AD",
-            goal: "complete project by today",
-            proof: "https://github.com/NeelContractor",
-            resolved: false,
-            yes: 0,
-            no: 0,
-            userVoted: null,
-            totalVotes: 0
-        }, {
-            id: 2,
-            userId: "NeeMfgT5tNWmeafvJDFq6pya84vDihTKUU5Mm7JzQe3",
-            goal: "complete 2 project by today",
-            proof: "https://github.com/NeelContractor",
-            resolved: false,
-            yes: 0,
-            no: 0,
-            userVoted: null,
-            totalVotes: 0
-        }, {
-            id: 3,
-            userId: "ED2BZBdfPRwZSsU1DESzyzhrtnVW6GKpvkFmTwnHy3qR",
-            goal: "complete TimeStaker project by tommorrow",
-            proof: "https://github.com/NeelContractor",
-            resolved: false,
-            yes: 0,
-            no: 0,
-            userVoted: null,
-            totalVotes: 0
-        },
-    ]);
+    const { registerJudge, judgeAccounts, goalAccounts, voteButton } = useTimeStakerProgram();
+    const [showButton, setShowButton] = useState(false);
     
-    const [isVoting, setIsVoting] = useState(false);
 
-    const handleVote = async (id: number, voteType: 'yes' | 'no') => {
-        // if (votes.userVoted) return; // Prevent multiple votes
-        
-        setIsVoting(true);
-        
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        setVotes((prevVotes) =>
-            prevVotes.map((vote) => {
-              if (vote.id !== id || vote.userVoted) return vote; // Prevent re-voting
-        
-              return {
-                ...vote,
-                yes: voteType === 'yes' ? vote.yes + 1 : vote.yes,
-                no: voteType === 'no' ? vote.no + 1 : vote.no,
-                userVoted: voteType,
-                totalVotes: vote.totalVotes + 1,
-              };
-            })
-        );
-        
-        setIsVoting(false);
-    };
-    
-    const resetVotes = () => {
-    setVotes((prev) =>
-        prev.map((vote) => ({
-        ...vote,
-        yes: 0,
-        no: 0,
-        userVoted: null,
-        totalVotes: 0,
-        }))
-    );
-    setIsVoting(false);
-    };
     
     //   const yesPercentage = votes.totalVotes > 0 ? (votes.yes / votes.totalVotes) * 100 : 0;
     //   const noPercentage = votes.totalVotes > 0 ? (votes.no / votes.totalVotes) * 100 : 0;
+
+    useEffect(() => {
+      if (judgeAccounts.isLoading) {
+          return; // Wait for loading to complete
+      }
+
+      if (!publicKey) return;
+      
+      const exist = judgeAccounts.data?.map((data) => data.account.judge.equals(publicKey));
+      if (exist) {
+          setShowButton(false);
+      } else {
+          setShowButton(true);
+      }
+  }, [judgeAccounts.data, judgeAccounts.isLoading]) // Add dependencies
+
+    const handleRegister = async() => {
+      if (publicKey) {
+        const tx = await registerJudge.mutateAsync({ judgePubkey: publicKey })
+        // toast(tx);
+      }
+    }
+
+    function unixToSimpleFormat(timestamp: number) {
+      const date = new Date(timestamp * 1000);
+      
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function ProofTypeDisplay({ proofType }: ProofTypeDisplayProps) {
+      if (!proofType) return <span className="text-gray-400">No proof type</span>;
+      
+      const variant = Object.keys(proofType)[0] as ProofTypeVariant;
+      const icons = {
+        image: '🖼️',
+        document: '📄',
+        link: '🔗',
+        text: '📝',
+        video: '🎥'
+      };
+      
+      return (
+        <span className="inline-flex items-center gap-1">
+          <span>{icons[variant] || '❓'}</span>
+          <span className="capitalize">{variant || 'Unknown'}</span>
+        </span>
+      );
+    }
+
+    function isDeadlinePassed(deadline: number) {
+      return Date.now() > (deadline * 1000);
+    }
+
+    const handleVote = async ({ vote, goalId, goalPubkey, status }: { vote: boolean, goalId: number, goalPubkey: PublicKey, status: any }) => {
+      if (publicKey && status.pendingVerification) {
+        await voteButton.mutateAsync({ goalPubkey, vote, goalId, judgePubkey: publicKey })
+      }
+    }
     
     return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
     {/* Background Pattern */}
@@ -120,7 +135,199 @@ export default function DashboardDao() {
           </p>
         </div>
 
-        {!publicKey ? (
+        {showButton ? (
+          <div>
+            <h3 className="text-4xl text-center font-bold">Stake your 1 SOL, Become Judge and participate in Voting</h3>
+            <h3 className="text-3xl text-center font-bold bg-gradient-to-r from-red-600 to-orange-400 bg-clip-text text-transparent">Reward rewards for voting</h3>
+          </div>
+          ) : null
+        }
+
+        {showButton ? (
+          <div className="flex justify-center bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm py-10 my-10">
+            <button
+              onClick={() => handleRegister()}
+              className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl px-8 py-4 border border-white/20 text-center text-2xl font-semibold hover:cursor-pointer"
+            >
+              Become Judge
+            </button>
+          </div>
+        ): null}
+
+        {
+          judgeAccounts.data?.map((data) => (
+            <div key={data.publicKey.toString()} className="bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm">
+              {/* <div>{data.account.judge.toBase58()}</div> */}
+              {/* <div>{data.account.isActive}</div> */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex gap-2">
+                  <p className="font-semibold">Correct Votes:</p>
+                  <p>{data.account.correctVotes}</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Registered At:</p>
+                  <p>{unixToSimpleFormat(data.account.registeredAt.toNumber())}</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Reputation Score:</p>
+                  <p>{data.account.reputationScore}</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Staked Amount:</p>
+                  <p>{data.account.stakeAmount.toNumber() / LAMPORTS_PER_SOL} SOL</p>
+                </div>
+                <div className="flex gap-2">
+                  <p className="font-semibold">Total Votes:</p>
+                  <p>{data.account.totalVotes}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+
+        {goalAccounts.data?.map((goal) => (
+          <div key={goal.publicKey.toString()} className="bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Basic Info */}
+              <div>
+                <p className="font-semibold text-gray-300">Creator:</p>
+                <p className="text-sm font-mono break-all">{goal.account.creator.toBase58()}</p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-gray-300">Goal ID:</p>
+                <p>{goal.account.goalId.toNumber()}</p>
+              </div>
+              
+              {/* Description */}
+              <div className="md:col-span-2">
+                <p className="font-semibold text-gray-300">Description:</p>
+                <p className="whitespace-pre-wrap">{goal.account.description}</p>
+              </div>
+              
+              {/* Stake Amount */}
+              <div>
+                <p className="font-semibold text-gray-300">Stake Amount:</p>
+                <p>{goal.account.stakeAmount.toNumber() / LAMPORTS_PER_SOL} SOL</p>
+              </div>
+              
+              {/* Status */}
+              <div>
+                <p className="font-semibold text-gray-300">Status:</p>
+                <p className={`inline-block px-2 py-1 rounded text-sm ${
+                  goal.account.status.active ? 'bg-green-500/20 text-green-400' :
+                  goal.account.status.completed ? 'bg-blue-500/20 text-blue-400' :
+                  goal.account.status.failed ? 'bg-red-500/20 text-red-400' :
+                  goal.account.status.cancelled ? 'bg-gray-500/20 text-gray-400' :
+                  'bg-yellow-500/20 text-yellow-400'
+                }`}>
+                  {Object.keys(goal.account.status)[0].toUpperCase()}
+                </p>
+              </div>
+              
+              {/* Timestamps */}
+              <div>
+                <p className="font-semibold text-gray-300">Created At:</p>
+                <p>{unixToSimpleFormat(goal.account.createdAt.toNumber())}</p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-gray-300">Deadline:</p>
+                <p className={isDeadlinePassed(goal.account.deadline.toNumber()) ? 'text-red-400' : 'text-green-400'}>
+                  {unixToSimpleFormat(goal.account.deadline.toNumber())}
+                  {isDeadlinePassed(goal.account.deadline.toNumber()) && ' (EXPIRED)'}
+                </p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-gray-300">Voting Deadline:</p>
+                <p className={isDeadlinePassed(goal.account.votingDeadline.toNumber()) ? 'text-red-400' : 'text-green-400'}>
+                  {unixToSimpleFormat(goal.account.votingDeadline.toNumber())}
+                  {isDeadlinePassed(goal.account.votingDeadline.toNumber()) && ' (EXPIRED)'}
+                </p>
+              </div>
+              
+              {/* Finalized At (if exists) */}
+              {goal.account.finalizedAt && (
+                <div>
+                  <p className="font-semibold text-gray-300">Finalized At:</p>
+                  <p>{unixToSimpleFormat(goal.account.finalizedAt.toNumber())}</p>
+                </div>
+              )}
+              
+              {/* Proof Data (if exists) */}
+              {goal.account.proofData && (
+                <div className="md:col-span-2">
+                  <p className="font-semibold text-gray-300">Proof Data:</p>
+                  <p className="whitespace-pre-wrap break-all">{goal.account.proofData}</p>
+                </div>
+              )}
+              
+              {/* Proof Type (if exists) */}
+              {goal.account.proofType && (
+                <div>
+                  <p className="font-semibold text-gray-300">Proof Type:</p>
+                  <p className="capitalize">
+                  <ProofTypeDisplay proofType={goal.account.proofType} />
+                  </p>
+                </div>
+              )}
+              
+              {/* Proof Submitted At (if exists) */}
+              {goal.account.proofSubmittedAt && (
+                <div>
+                  <p className="font-semibold text-gray-300">Proof Submitted At:</p>
+                  <p>{unixToSimpleFormat(goal.account.proofSubmittedAt.toNumber())}</p>
+                </div>
+              )}
+              
+              {/* Voting Stats */}
+              <div>
+                <p className="font-semibold text-gray-300">Total Votes:</p>
+                <p>{goal.account.totalVotes.toNumber()}</p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-gray-300">Yes Votes:</p>
+                <p className="text-green-400">
+                  {goal.account.yesVotes.toNumber()} 
+                  {goal.account.totalVotes.toNumber() > 0 && 
+                    ` (${((goal.account.yesVotes.toNumber() / goal.account.totalVotes.toNumber()) * 100).toFixed(1)}%)`
+                  }
+                </p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-gray-300">No Votes:</p>
+                <p className="text-red-400">
+                  {goal.account.totalVotes.toNumber() - goal.account.yesVotes.toNumber()}
+                  {goal.account.totalVotes.toNumber() > 0 && 
+                    ` (${(((goal.account.totalVotes.toNumber() - goal.account.yesVotes.toNumber()) / goal.account.totalVotes.toNumber()) * 100).toFixed(1)}%)`
+                  }
+                </p>
+              </div>
+            </div>
+            {goal.account.status.pendingVerification ? (
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => handleVote({ vote: true, goalId: goal.account.goalId.toNumber(), goalPubkey: goal.publicKey, status: goal.account.status })}
+                    className="w-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-xl font-bold py-6 px-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 "
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => handleVote({ vote: false, goalId: goal.account.goalId.toNumber(), goalPubkey: goal.publicKey, status: goal.account.status })}
+                    className="w-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-xl font-bold py-6 px-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-red-500/25 "
+                  >
+                    No
+                  </button>
+                </div>
+            ) : null}
+          </div>
+        ))}
+
+        {/* {!publicKey ? (
             <div className="text-center text-4xl font-bold mb-12 p-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">Connect your Wallet</div>
         ): null}
         {publicKey && votes.filter(vote => vote.userVoted === null).map((vote) => (
@@ -128,7 +335,7 @@ export default function DashboardDao() {
                 key={vote.id}
                 className="mb-12 p-6 md:p-8 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg"
             >
-                {/* User Info */}
+                
                 <div className="mb-4 text-left text-white space-y-1">
                 <div className="text-sm text-white/50">User</div>
                 <div className="font-mono text-md break-all">{vote.userId}</div>
@@ -147,7 +354,7 @@ export default function DashboardDao() {
                 </a>
                 </div>
 
-                {/* Vote Stats */}
+                
                 <div className="text-left text-white/70 text-sm mb-6">
                 <div>Total Votes: <span className="font-bold text-white">{vote.totalVotes}</span></div>
                 <div className="flex gap-6 mt-2">
@@ -156,9 +363,9 @@ export default function DashboardDao() {
                 </div>
                 </div>
 
-                {/* Vote Buttons */}
+                
                 <div className="grid md:grid-cols-2 gap-6">
-                {/* YES button */}
+                
                 <button
                     onClick={() => handleVote(vote.id, 'yes')}
                     disabled={isVoting || vote.userVoted !== null}
@@ -179,7 +386,7 @@ export default function DashboardDao() {
                     )}
                 </button>
 
-                {/* NO button */}
+                
                 <button
                     onClick={() => handleVote(vote.id, 'no')}
                     disabled={isVoting || vote.userVoted !== null}
@@ -207,7 +414,7 @@ export default function DashboardDao() {
         <div className="text-center text-white text-3xl font-semibold mt-12">
             🎉 You've voted on all available proposals!
         </div>
-        )}
+        )} */}
 
 
 

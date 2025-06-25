@@ -8,12 +8,19 @@ import { CountdownTimer } from "./CountdownTimer";
 import { StakingCard } from "./StakingCard";
 import { ProofSubmission } from "./ProofSubmission";
 import { useRouter } from "next/navigation";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { WalletButton } from "../solana/solana-provider";
+import { useTimeStakerProgram } from "../counter/timestaker-data-access";
+
+export const ADMINPUBKEY = new PublicKey('GToMxgF4JcNn8dmNiHt2JrrvLaW6S1zSPoL2W8K2Wkmi');
 
 export default function TimeStaker() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [showProofModal, setShowProofModal] = useState(false);
     const [status, setStatus] = useState<'active' | 'completed' | 'slashed' | 'under_review'>('active');
     const router = useRouter();
+    const { publicKey } = useWallet();
 
     //mock data - replace with real data 
     const stakingData = {
@@ -73,16 +80,31 @@ export default function TimeStaker() {
             </p>
           </div>
 
-          <div className="grid  grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="flex justify-center py-5">
+            <WalletButton />
+          </div>
+
+          {publicKey && publicKey.equals(ADMINPUBKEY) && (
+            <div className="grid grid-cols-1 gap-6 mb-8">
+              <button
+                className='w-full bg-gradient-to-br from-purple-500 to-blue-600 hover:from-blue-400 hover:to-purple-500 text-white text-xl font-bold py-4 my-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 '
+                onClick={() => router.push('adminDashboard')}
+              >
+                Go to Admin's Dashboard
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <button 
-              className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-4 border cursor-pointer border-white/20 text-center font-semibold hover:shadow-md shadow-white"
+              className='w-full bg-gradient-to-br from-purple-500 to-blue-600 hover:from-purple-400 hover:to-blue-500 text-white text-xl font-bold py-4 my-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 '
               onClick={() => router.push('user_dashboard')}
             >
                 Start setting and achiving Goal
             </button>
 
             <button 
-              className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-4 border cursor-pointer border-white/20 text-center font-semibold  hover:shadow-md shadow-white"
+              className='w-full bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white text-xl font-bold py-4 my-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 '
               onClick={() => router.push('dao_dashboard')}
             >
                 Become judge and verify user goals
