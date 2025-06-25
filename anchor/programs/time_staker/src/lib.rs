@@ -196,6 +196,7 @@ pub mod time_staker {
         Ok(())
     }
 
+    // TODO: probably remove this
     pub fn update_judge_reputation(ctx: Context<UpdateJudgeReputation>) -> Result<()> {
         let judge = &mut ctx.accounts.judge;
         let vote_record = &ctx.accounts.vote_record;

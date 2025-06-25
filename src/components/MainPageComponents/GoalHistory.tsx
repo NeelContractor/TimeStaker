@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Clock, CheckCircle, XCircle, AlertTriangle, ExternalLink, Calendar, Coins } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useTimeStakerProgram } from '../counter/timestaker-data-access';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import axios from 'axios';
 
 type ProofTypeVariant = 
@@ -106,10 +106,10 @@ export const GoalHistory = () => {
     return days
   }
 
-  const handleSubmitProof = () => {
+  const handleSubmitProof = async({ goalPubkey }: { goalPubkey: PublicKey }) => {
     if (publicKey ) {
       // TODO: complete this
-      // submitProof.mutateAsync({ goalPubkey, proofData: proofData, proofType, creatorPubkey: publicKey })
+      await submitProof.mutateAsync({ goalPubkey, proofData: proofData, proofType, creatorPubkey: publicKey })
     }
   }
 
@@ -177,7 +177,7 @@ export const GoalHistory = () => {
                           </span>
                           <div className="w-32 bg-white/10 rounded-full h-2">
                             <div 
-                              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all"
+                              className="h-full bg-gradient-to-r from-green-500 to-yellow-500 rounded-full transition-all"
                               style={{ 
                                 width: `${Math.min(100, Math.max(0, 
                                   ((new Date().getTime() - goal.account.createdAt.toNumber()) / 
@@ -261,7 +261,7 @@ export const GoalHistory = () => {
 
                         <button
                           className='w-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-xl font-bold py-2 my-2 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 '
-                          onClick={() => handleSubmitProof()}
+                          onClick={() => handleSubmitProof({ goalPubkey: goal.publicKey })}
                         >
                           Submit
                         </button>

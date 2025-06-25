@@ -36,7 +36,7 @@ interface VoteState {
 
 export default function DashboardDao() {
     const { publicKey } = useWallet();
-    const { registerJudge, judgeAccounts, goalAccounts, voteButton } = useTimeStakerProgram();
+    const { registerJudge, judgeAccounts, goalAccounts, voteButton, withdrawJudgeStake } = useTimeStakerProgram();
     const [showButton, setShowButton] = useState(false);
     
 
@@ -108,6 +108,12 @@ export default function DashboardDao() {
         await voteButton.mutateAsync({ goalPubkey, vote, goalId, judgePubkey: publicKey })
       }
     }
+
+    const handleWithdrawJudgeStake = async() => {
+      if (publicKey) {
+        await withdrawJudgeStake.mutateAsync({ judgeAuthorityPubkey: publicKey });
+      }
+    };
     
     return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
     {/* Background Pattern */}
@@ -119,66 +125,70 @@ export default function DashboardDao() {
             <WalletButton />
         </div>
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-            <TrendingUp className="w-5 h-5 text-blue-400" />
-            <span className="text-sm font-medium text-white/90">Live Voting Dashboard</span>
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-            Should we implement the new
-            <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent"> feature proposal</span>?
-          </h1>
-          
-          <p className="text-xl text-white/70 max-w-2xl mx-auto">
-            Cast your vote and see real-time results from the community. Your voice matters in shaping our product's future.
-          </p>
-        </div>
-
         {showButton ? (
-          <div>
-            <h3 className="text-4xl text-center font-bold">Stake your 1 SOL, Become Judge and participate in Voting</h3>
-            <h3 className="text-3xl text-center font-bold bg-gradient-to-r from-red-600 to-orange-400 bg-clip-text text-transparent">Reward rewards for voting</h3>
-          </div>
-          ) : null
-        }
-
-        {showButton ? (
-          <div className="flex justify-center bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm py-10 my-10">
-            <button
-              onClick={() => handleRegister()}
-              className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl px-8 py-4 border border-white/20 text-center text-2xl font-semibold hover:cursor-pointer"
-            >
-              Become Judge
-            </button>
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+              <TrendingUp className="w-5 h-5 text-blue-400" />
+              <span className="text-sm font-medium text-white/90">Live Voting Dashboard</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+              Stake your 1 SOL, Become Judge and participate in Voting
+              <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent"> Reward rewards for voting</span>?
+            </h1>
+            
+            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+              Cast your vote and see real-time results from the community. Your voice matters in shaping our product's future.
+            </p>
+        
+            <div className="flex justify-center bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm py-10 my-10">
+              <button
+                onClick={() => handleRegister()}
+                className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl px-8 py-4 border border-white/20 text-center text-2xl font-semibold hover:cursor-pointer"
+              >
+                Become Judge
+              </button>
+            </div>
           </div>
         ): null}
 
         {
           judgeAccounts.data?.map((data) => (
-            <div key={data.publicKey.toString()} className="bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm">
-              {/* <div>{data.account.judge.toBase58()}</div> */}
-              {/* <div>{data.account.isActive}</div> */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex gap-2">
-                  <p className="font-semibold">Correct Votes:</p>
-                  <p>{data.account.correctVotes}</p>
+            <div key={data.publicKey.toString()}>
+              <h1 className="text-4xl md:text-6xl font-bold text-white text-center mb-4 leading-tight">
+                <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">Judge </span>
+                Dashboard
+              </h1>
+              <div className="bg-white/10 rounded-lg p-6 mb-4 backdrop-blur-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex gap-2">
+                    <p className="font-semibold">Correct Votes:</p>
+                    <p>{data.account.correctVotes}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <p className="font-semibold">Registered At:</p>
+                    <p>{unixToSimpleFormat(data.account.registeredAt.toNumber())}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <p className="font-semibold">Reputation Score:</p>
+                    <p>{data.account.reputationScore}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <p className="font-semibold">Staked Amount:</p>
+                    <p>{data.account.stakeAmount.toNumber() / LAMPORTS_PER_SOL} SOL</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <p className="font-semibold">Total Votes:</p>
+                    <p>{data.account.totalVotes}</p>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <p className="font-semibold">Registered At:</p>
-                  <p>{unixToSimpleFormat(data.account.registeredAt.toNumber())}</p>
-                </div>
-                <div className="flex gap-2">
-                  <p className="font-semibold">Reputation Score:</p>
-                  <p>{data.account.reputationScore}</p>
-                </div>
-                <div className="flex gap-2">
-                  <p className="font-semibold">Staked Amount:</p>
-                  <p>{data.account.stakeAmount.toNumber() / LAMPORTS_PER_SOL} SOL</p>
-                </div>
-                <div className="flex gap-2">
-                  <p className="font-semibold">Total Votes:</p>
-                  <p>{data.account.totalVotes}</p>
+                <div className="w-full">
+                  <button
+                    onClick={() => handleWithdrawJudgeStake()}
+                    className="w-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white text-xl font-bold py-4 px-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-red-500/25 "
+                  >
+                    😢 Unstake Amount
+                  </button>
                 </div>
               </div>
             </div>
@@ -308,8 +318,9 @@ export default function DashboardDao() {
                 </p>
               </div>
             </div>
+            {/* TODO: add logic to not show vote buttons find judge and already voted */}
             {goal.account.status.pendingVerification ? (
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4 py-2">
                   <button
                     onClick={() => handleVote({ vote: true, goalId: goal.account.goalId.toNumber(), goalPubkey: goal.publicKey, status: goal.account.status })}
                     className="w-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white text-xl font-bold py-6 px-4 rounded-2xl shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 "
@@ -323,7 +334,7 @@ export default function DashboardDao() {
                     No
                   </button>
                 </div>
-            ) : null}
+             ) : null} 
           </div>
         ))}
 

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function Page() {
     const { publicKey } = useWallet()
     const router = useRouter();
-    const { initialize, globalStateAccount, judgeAccounts } = useTimeStakerProgram();
+    const { initialize, globalStateAccount, judgeAccounts, updateJudgeReputation, finalizeGoal, voteRecordAccounts, goalAccounts } = useTimeStakerProgram();
 
     const [showInitializeButton, setShowInitializeButton] = useState(false);
     
@@ -116,6 +116,12 @@ export default function Page() {
                     ))}
                 </div>
             )}
+
+            {/* {goalAccounts.data?.map((goal) => (
+                <div key={goal.account.goalId.toString()}>
+                    {goal.account.status.completed}
+                </div>
+            ))} */}
             
             {/* Show error state */}
             {globalStateAccount.error && (

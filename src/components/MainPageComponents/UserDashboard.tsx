@@ -90,7 +90,7 @@ export const UserDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto mb-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl">
+              <div className="p-3 bg-gradient-to-r from-green-500 to-yellow-500 rounded-2xl">
                 <User className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-4xl font-bold text-white">My Dashboard</h1>
@@ -132,7 +132,7 @@ export const UserDashboard: React.FC = () => {
                   onClick={() => setActiveTab('create')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
                     activeTab === 'create'
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
+                      ? 'bg-gradient-to-r from-green-500 to-yellow-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -143,7 +143,7 @@ export const UserDashboard: React.FC = () => {
                   onClick={() => setActiveTab('history')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
                     activeTab === 'history'
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
+                      ? 'bg-gradient-to-r from-green-500 to-yellow-500 text-white shadow-lg'
                       : 'text-purple-200 hover:text-white hover:bg-white/10'
                   }`}
                 >

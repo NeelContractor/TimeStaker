@@ -147,7 +147,7 @@ export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-xl">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl">
+        <div className="p-3 bg-gradient-to-r from-green-500 to-yellow-500 rounded-xl">
           <Plus className="w-6 h-6 text-white" />
         </div>
         <div>
@@ -283,7 +283,7 @@ export const CreateGoalForm: React.FC<CreateGoalFormProps> = ({ onSubmit }) => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:from-purple-500/50 disabled:to-blue-500/50 text-white py-4 rounded-xl font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-3"
+          className="w-full bg-gradient-to-r from-green-500 to-yellow-500 hover:from-green-600 hover:to-yellow-600 disabled:from-purple-500/50 disabled:to-blue-500/50 text-white py-4 rounded-xl font-medium transition-all disabled:cursor-not-allowed flex items-center justify-center gap-3"
         >
           {isSubmitting ? (
             <>
