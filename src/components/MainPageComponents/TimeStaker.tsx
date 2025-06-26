@@ -21,7 +21,7 @@ export default function TimeStaker() {
     const router = useRouter();
     const { publicKey } = useWallet();
 
-    //mock data - replace with real data 
+    //mock data for displaying 
     const stakingData = {
         stakedAmount: 25.75,
         goal: "Complete and deploy a full-stack web application with user authentication, database integration, and responsive design. The project should include at least 5 main features and be production-ready.",
@@ -71,7 +71,7 @@ export default function TimeStaker() {
               <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl">
                 <Shield className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-white">TimeStaker</h1>
+              <h1 className="text-6xl font-bold text-white">TimeStaker</h1>
             </div>
             <p className="text-purple-200 text-lg max-w-2xl mx-auto">
               Lock your SOL to commit to your goals. Complete your commitment to reclaim your stake, 

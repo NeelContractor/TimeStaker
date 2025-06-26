@@ -162,7 +162,7 @@ export const CreateGoalForm= () => {
             </div>
           )}
           <div className="mt-2 text-purple-300 text-sm">
-            {formData.goal.length}/500 characters
+            {formData.goal.length}/400 characters
           </div>
         </div>
 

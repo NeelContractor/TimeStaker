@@ -11,12 +11,14 @@ import { useTransactionToast } from '../use-transaction-toast'
 import { toast } from 'sonner'
 import { BN } from 'bn.js'
 
+/* eslint-disable @typescript-eslint/ban-types */
 type ProofTypeVariant = 
   | { image: {} }
-  | { document: {} }
-  | { link: {} }
-  | { text: {} }
-  | { video: {} }
+  | { document: {} } 
+  | { link: {} } 
+  | { text: {} } 
+  | { video: {} } 
+  /* eslint-disable @typescript-eslint/ban-types */
 
 interface CreateGoalsArgs {
   goal_id: number,
@@ -108,7 +110,7 @@ export function useTimeStakerProgram() {
           authority: authority,
           globalState: globalStateKeypair.publicKey,
           systemProgram: SystemProgram.programId
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .signers([globalStateKeypair])
         .rpc()
       },
@@ -143,7 +145,7 @@ export function useTimeStakerProgram() {
           goal: goalPDA,
           globalState: globalStatePubkey,
           systemProgram: SystemProgram.programId
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -164,7 +166,7 @@ export function useTimeStakerProgram() {
         .accounts({ 
           goal: goalPubkey,
           creator: creatorPubkey
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -197,7 +199,7 @@ export function useTimeStakerProgram() {
           judgeAuthority: judgePubkey,
           globalState: globalStatePubkey,
           systemProgram: SystemProgram.programId
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -230,7 +232,7 @@ export function useTimeStakerProgram() {
           voteRecord: voteRecordPDA,
           judgeAuthority: judgePubkey,
           systemProgram: SystemProgram.programId
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -258,7 +260,7 @@ export function useTimeStakerProgram() {
           goal: goalPubkey,
           creator: creatorPubkey,
           globalState: globalStatePubkey
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -280,7 +282,7 @@ export function useTimeStakerProgram() {
           goal: goalPubkey,
           judge: judgePubkey,
           voteRecord: voteRecordPubkey
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -305,7 +307,7 @@ export function useTimeStakerProgram() {
         .accounts({ 
           judge: judgePDA,
           judgeAuthority: judgeAuthorityPubkey
-        }as any)
+        }as any) // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .rpc()
       },
     onSuccess: async (signature) => {
@@ -338,7 +340,6 @@ export function useTimeStakerProgram() {
 
 export function useTimeStakerProgramAccount({ account }: { account: PublicKey }) {
   const { cluster } = useCluster()
-  const transactionToast = useTransactionToast()
   const { program } = useTimeStakerProgram()
 
   const accountQuery = useQuery({
@@ -385,9 +386,9 @@ export function getVoteRecordPDA(programId: PublicKey, goalId: number, judgeAuth
 }
 
 export const ProofType = {
-  Image: { image: {} },
-  Document: { document: {} },
-  Link: { link: {} },
-  Text: { text: {} },
-  Video: { video: {} },
+  Image: { image: Object },
+  Document: { document: Object },
+  Link: { link: Object },
+  Text: { text: Object },
+  Video: { video: Object },
 } as const

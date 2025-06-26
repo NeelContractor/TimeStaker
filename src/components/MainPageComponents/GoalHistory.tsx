@@ -7,11 +7,11 @@ import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import axios from 'axios';
 
 type ProofTypeVariant = 
-  | { image: {} }
-  | { document: {} }
-  | { link: {} }
-  | { text: {} }
-  | { video: {} }
+  | { image: object } 
+  | { document: object }
+  | { link: object } 
+  | { text: object } 
+  | { video: object } 
 
 export const GoalHistory = () => {
   const { publicKey } = useWallet();
@@ -36,6 +36,7 @@ export const GoalHistory = () => {
     fetch()
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getStatusIcon(status: any) {
     switch (status.name) {
       case "active":
@@ -49,10 +50,10 @@ export const GoalHistory = () => {
       case "cancelled":
         return <span>🚫</span>;
       default:
-        return <span>❓</span>;
+        return <span>🎯</span>;
     }
   }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getStatusColor(status: any) {
     switch (status.name) {
       case "active":
@@ -69,7 +70,7 @@ export const GoalHistory = () => {
         return "border-gray-300 text-gray-400";
     }
   }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getStatusText(status: any) {
     switch (status.name) {
       case "active":

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import { Upload, Image, Link2, X, Send } from 'lucide-react';
+import { Upload, Link2, X, Send, ImageIcon } from 'lucide-react';
 
 interface ProofSubmissionProps {
   isOpen: boolean;
@@ -117,7 +117,7 @@ export const ProofSubmission: React.FC<ProofSubmissionProps> = ({ isOpen, onClos
                 {images.map((image, index) => (
                   <div key={index} className="relative group">
                     <div className="aspect-square bg-white/10 rounded-lg flex items-center justify-center">
-                      <Image className="w-8 h-8 text-purple-300" />
+                      <ImageIcon className="w-8 h-8 text-purple-300" />
                     </div>
                     <button
                       onClick={() => removeImage(index)}
